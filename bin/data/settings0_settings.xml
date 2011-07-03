@@ -1,0 +1,14 @@
+<controls>
+    <SliderFloat_backgroundColor>
+        <name>backgroundColor</name>
+        <value>0.587891</value>
+    </SliderFloat_backgroundColor>
+    <SliderFloat_triangleColorFill>
+        <name>triangleColorFill</name>
+        <value>0.208984</value>
+    </SliderFloat_triangleColorFill>
+    <SliderFloat_triangleColorLine>
+        <name>triangleColorLine</name>
+        <value>1.000000</value>
+    </SliderFloat_triangleColorLine>
+</controls>

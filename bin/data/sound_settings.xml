@@ -1,0 +1,22 @@
+<controls>
+    <SliderFloat_soundPosition>
+        <name>soundPosition</name>
+        <value>0.349609</value>
+    </SliderFloat_soundPosition>
+    <SliderFloat_soundThreshold>
+        <name>soundThreshold</name>
+        <value>0.200000</value>
+    </SliderFloat_soundThreshold>
+    <SliderFloat_soundPeakDecay>
+        <name>soundPeakDecay</name>
+        <value>0.850000</value>
+    </SliderFloat_soundPeakDecay>
+    <SliderFloat_soundMaxDecay>
+        <name>soundMaxDecay</name>
+        <value>0.990000</value>
+    </SliderFloat_soundMaxDecay>
+    <SliderFloat_soundScale>
+        <name>soundScale</name>
+        <value>1.200000</value>
+    </SliderFloat_soundScale>
+</controls>
