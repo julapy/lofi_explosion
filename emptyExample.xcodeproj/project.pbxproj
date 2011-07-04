@@ -222,9 +222,12 @@
 		15E20A4B138A8BDF00DE74CA /* ofxVec3f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxVec3f.h; sourceTree = "<group>"; };
 		15E20A4C138A8BDF00DE74CA /* ofxVec4f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxVec4f.h; sourceTree = "<group>"; };
 		15E20A4D138A8BDF00DE74CA /* ofxVectorMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxVectorMath.h; sourceTree = "<group>"; };
-		15E31E1C13C066C300332BC0 /* Settings0.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings0.h; sourceTree = "<group>"; };
+		15E2CDD013C1E800005B01A0 /* Settings0.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings0.h; sourceTree = "<group>"; };
+		15E2CDD113C1ED88005B01A0 /* Settings2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings2.h; sourceTree = "<group>"; };
+		15E2CDD213C21D65005B01A0 /* Settings4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings4.h; sourceTree = "<group>"; };
+		15E31E1C13C066C300332BC0 /* Settings1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings1.h; sourceTree = "<group>"; };
 		15E31E1E13C0687B00332BC0 /* Settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings.h; sourceTree = "<group>"; };
-		15E31E1F13C0979A00332BC0 /* Settings1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings1.h; sourceTree = "<group>"; };
+		15E31E1F13C0979A00332BC0 /* Settings3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings3.h; sourceTree = "<group>"; };
 		E45BE0390E8CC647009D7055 /* FreeImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FreeImage.h; path = ../../../libs/freeimage/include/FreeImage.h; sourceTree = SOURCE_ROOT; };
 		E45BE03F0E8CC650009D7055 /* fmod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fmod.h; path = ../../../libs/fmodex/include/fmod.h; sourceTree = SOURCE_ROOT; };
 		E45BE0400E8CC650009D7055 /* fmod.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = fmod.hpp; path = ../../../libs/fmodex/include/fmod.hpp; sourceTree = SOURCE_ROOT; };
@@ -609,8 +612,11 @@
 			isa = PBXGroup;
 			children = (
 				15E31E1E13C0687B00332BC0 /* Settings.h */,
-				15E31E1C13C066C300332BC0 /* Settings0.h */,
-				15E31E1F13C0979A00332BC0 /* Settings1.h */,
+				15E2CDD013C1E800005B01A0 /* Settings0.h */,
+				15E31E1C13C066C300332BC0 /* Settings1.h */,
+				15E2CDD113C1ED88005B01A0 /* Settings2.h */,
+				15E31E1F13C0979A00332BC0 /* Settings3.h */,
+				15E2CDD213C21D65005B01A0 /* Settings4.h */,
 			);
 			name = settings;
 			sourceTree = "<group>";
