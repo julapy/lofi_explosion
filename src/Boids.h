@@ -22,6 +22,7 @@ public:
     ofxVec3f coh;
     ofxVec3f sep;
     float radius;
+    float audio;
 };
 
 class Boids : public ofBaseApp
@@ -60,4 +61,7 @@ public:
     float boundsScale;
     
     float maxSpeed;
+    
+    float alpha;
+    float audioWeight;
 };

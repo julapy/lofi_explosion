@@ -28,6 +28,9 @@ Boids :: Boids ()
     boundsScale         = 2.0;
     
     maxSpeed            = 6.5;
+    
+    alpha               = 1.0;
+    audioWeight         = 1.0;
 }
 
 Boids :: ~Boids ()
@@ -55,6 +58,7 @@ void Boids :: setup ()
         boid.vel.y  = ofRandom( -1, 1 );
         boid.vel.z  = ofRandom( -1, 1 );
         boid.radius = 0;
+        boid.audio  = 1;
     }
 }
 
@@ -97,8 +101,14 @@ void Boids :: update ()
         
         //-- add it all up.
         
+        float maxSpeedAudio;
+        maxSpeedAudio = ofClamp( boid.audio, 0.4, 1.0 );
+        
+        float boidMaxSpeed;
+        boidMaxSpeed = maxSpeed * ( 1 - audioWeight ) + maxSpeedAudio * audioWeight;
+        
         boid.vel += boid.acc;
-        boid.vel.limit( maxSpeed );
+        boid.vel.limit( boidMaxSpeed );
         boid.pos += boid.vel;
         boid.acc.set( 0, 0, 0 );
     }
@@ -117,16 +127,17 @@ void Boids :: draw ()
         glPushMatrix();
         glTranslatef( pos.x, pos.y, pos.z );
         {
-            glColor4f( 1, 0, 0, 1 );
+            float audio = ( 1 - audioWeight ) + boid.audio * audioWeight;
             
-//            ofFill();
-//            ofCircle( 0, 0, 5 );
+            float a = audio;
+            a = ofClamp( a, 0.2, 1.0 );
+            a *= alpha;
+            glColor4f( 1, 1, 1, a );
             
             if( tex )
             {
                 float s = 0.08;
                 
-                glColor4f( 1, 1, 1, 1 );
                 glScalef( s, s, 0 );
                 glTranslatef( -tex->getWidth() * 0.5, -tex->getHeight() * 0.5, 0 );
                 tex->draw( 0, 0 );

@@ -1,5 +1,5 @@
 //
-//  Settings0.h
+//  Settings2.h
 //  emptyExample
 //
 //  Created by lukasz karluk on 4/07/11.
@@ -10,27 +10,33 @@
 
 #include "Settings.h"
 
-class Settings0 : public Settings
+class Settings2 : public Settings
 {
 public:
     
-    Settings0() : Settings()
+    Settings2() : Settings()
     {
         backgroundColor = 0.0;
         
         bDrawTriangles = true;
-        bDrawLights = false;
+        bDrawLights = true;
         bDrawBoids = false;
         bDrawRayEdges = false;
         
-        backgroundColor = 1.0;
+        lightsAlpha = 0;
         
-        rotationTarget = 0;
+        rotationTarget = 0.5;
     }
     
     void update ( float p = -1 )
     {
         Settings :: update( p );
+        
+        lightsAlpha = position;
+        triangleColorFillOutside = 1 - position;
+        triangleColorFillInsideMix = 1 - position;
+        triangleColorLineMix = position;
+        triangleColorLine = position * 0.2;
     }
     
 };

@@ -21,22 +21,32 @@ public:
         bDrawBoids = true;
         bDrawRayEdges = true;
         
-        bRotate = true;
+        rotation = 0;
+        rotationTarget = 0;
+        rotationAudio = 0;
+        rotationEase = 0.1;
         
-        backgroundColor         = 1.0;
-        triangleColorFill       = 1.0;
-        triangleColorLine       = 0.0;
-        triangleRadiusToCenter  = 1.0;
-        triangleRadiusToCenterTarget = 0.0;
+        backgroundColor                 = 1.0;
+        triangleColorFillOutside        = 1.0;
+        triangleColorFillOutsideAlpha   = 1.0;
+        triangleColorFillInsideMix      = 1.0;
+        triangleColorFillInsideAlpha    = 1.0;
+        triangleColorLine               = 0.0;
+        triangleColorLineMix            = 0.0;
+        triangleRadiusToCenter          = 1.0;
+        triangleRadiusToCenterTarget    = 0.0;
         
         position        = 0;
         positionStart   = 0;
         positionEnd     = 0;
         
-        bLights = false;
-        
         rayAlpha = 1.0;
         rayScale = 1.0;
+        
+        lightsAlpha = 1.0;
+        
+        boidAlpha = 0.0;
+        boidAudioWeight = 0.0;
     }
     
     bool bDrawTriangles;
@@ -44,33 +54,36 @@ public:
     bool bDrawBoids;
     bool bDrawRayEdges;
     
-    bool bRotate;
+    float rotation;
+    float rotationAudio;
+    float rotationTarget;
+    float rotationEase;
     
     float position;
     float positionStart;
     float positionEnd;
     
-    bool  bLights;
-    
     float backgroundColor;
-    float triangleColorFill;
+    float triangleColorFillOutside;
+    float triangleColorFillInsideMix;
+    float triangleColorFillOutsideAlpha;
+    float triangleColorFillInsideAlpha;
     float triangleColorLine;
+    float triangleColorLineMix;
     float triangleRadiusToCenter;
     float triangleRadiusToCenterTarget;
+    
+    float boidAlpha;
+    float boidAudioWeight;
     
     float rayAlpha;
     float rayScale;
     
-    void addToGui ( ofxSimpleGuiToo& gui )
-    {
-        //
-    }
+    float lightsAlpha;
     
     void copySettings ( Settings& settings )
     {
-        backgroundColor     = settings.backgroundColor;
-        triangleColorFill   = settings.triangleColorFill;
-        triangleColorLine   = settings.triangleColorLine;
+        //
     }
     
     void setPosition ( float positionStart, float positionEnd )
@@ -86,5 +99,7 @@ public:
             position = ( p - positionStart ) / ( positionEnd - positionStart );
             position = ofClamp( position, 0, 1 );
         }
+        
+        rotation += ( rotationTarget - rotation ) * rotationEase;
     }
 };

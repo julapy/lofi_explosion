@@ -15,6 +15,9 @@
 #include "Settings.h"
 #include "Settings0.h"
 #include "Settings1.h"
+#include "Settings2.h"
+#include "Settings3.h"
+#include "Settings4.h"
 
 #define OSC_MESSAGES_TOTAL  10
 
@@ -65,6 +68,8 @@ public:
     
     float reach;
     float strength;
+    float scale;
+    float audio;
 };
 
 class Ray
@@ -89,7 +94,7 @@ public:
     void parseOsc       ( string msg );
     
     void drawTriangles  ();
-    void drawRays       ( const ofPoint& p );
+    void drawLights     ( PointLight& light );
     void drawRayEdges   ();
     void drawBoids      ();
     void spotlight      ();

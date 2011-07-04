@@ -105,7 +105,7 @@ void testApp::setup()
     triangleAudio = new float[ t ];
     
     GLenum lightNums[] = { GL_LIGHT0, GL_LIGHT1, GL_LIGHT2, GL_LIGHT3, GL_LIGHT4, GL_LIGHT5, GL_LIGHT6, GL_LIGHT7 };
-    for( int i=0; i<8; i++ )
+    for( int i=0; i<16; i++ )
     {
         PointLight light;
         light.lightNum = lightNums[ i ];
@@ -158,6 +158,8 @@ void testApp::setup()
         
         light.reach     = radius * 0.5;
         light.strength  = 1.0;
+        light.scale     = 1.0;
+        light.audio     = 1.0;
         
         lights.push_back( light );
     }
@@ -193,14 +195,14 @@ void testApp::setup()
     
     //---
     
-    settingsIndex = 0;
     settingsIndexGui = settingsIndex;
     settings.push_back( Settings0() );
     settings.push_back( Settings1() );
+    settings.push_back( Settings2() );
+    settings.push_back( Settings3() );
+    settings.push_back( Settings4() );
+    settingsIndex = settings.size() - 1;
    
-    settings[ 0 ].setPosition( 0.00, 0.05 );
-    settings[ 1 ].setPosition( 0.05, 0.10 );
-    
     currentSettings = &settings[ settingsIndex ];
     
     //---
@@ -232,8 +234,15 @@ void testApp::setup()
     
     gui.addPage( "settings" );
     gui.addSlider( "settingsIndex", settingsIndexGui, 0, settings.size() - 1 );
-    ( (Settings0*)&settings[ 0 ] )->addToGui( gui );
-    ( (Settings0*)&settings[ 1 ] )->addToGui( gui );
+    for( int i=0; i<settings.size(); i++ )
+    {
+        string settingName;
+        settingName = "settings";
+        settingName += ofToString( i );
+        settingName += ".position";
+        
+        gui.addSlider( settingName, settings[ i ].position, 0, 1 );
+    }
     
     gui.show();
     gui.page( 3 );
@@ -248,12 +257,12 @@ void testApp::setup()
         int soundTimeSec = 0;
         soundTimeMillis = ( soundTimeMin * 60 + soundTimeSec ) * 1000;
         
-        soundPosition = 0;
+        soundPosition = 0.25;
         soundPositionGui = soundPosition;
         
         sound.loadSound( "lofi_pretty_ugly.mp3" );
-        sound.setPosition( soundPosition );
         sound.play();
+        sound.setPosition( soundPosition );
         
         fftFromFile.init( &sound );
         fftFromFile.setMirrorData( true );
@@ -284,6 +293,12 @@ void testApp::update()
         ( (Settings0*)currentSettings )->update( bUpdateToSound ? position : -1 );
     else if( settingsIndex == 1 )
         ( (Settings1*)currentSettings )->update( bUpdateToSound ? position : -1 );
+    else if( settingsIndex == 2 )
+        ( (Settings2*)currentSettings )->update( bUpdateToSound ? position : -1 );
+    else if( settingsIndex == 3 )
+        ( (Settings3*)currentSettings )->update( bUpdateToSound ? position : -1 );
+    else if( settingsIndex == 4 )
+        ( (Settings4*)currentSettings )->update( bUpdateToSound ? position : -1 );
     
     //--- sound.
     
@@ -362,10 +377,31 @@ void testApp::update()
     fftFromFile.update();
 //    fftFromFile.getFftData( triangleAudio, triangles.size() );
     fftFromFile.getFftPeakData( triangleAudio, triangles.size() );
+    
+    //---
+    
+    currentSettings->rotationAudio = fftFromFile.getAveragePeak();
         
     //---
     
+    int boidsTotal = boids.boids.size();
+    float* boidsAudio;
+    boidsAudio = new float[ boidsTotal ];
+    fftFromFile.getFftPeakData( boidsAudio, boidsTotal );
+    for( int i=0; i<boidsTotal; i++ )
+        boids.boids[ i ]->audio = boidsAudio[ i ];
+    delete[] boidsAudio;
+    
+    boids.audioWeight = currentSettings->boidAudioWeight;
+    boids.alpha = currentSettings->boidAlpha;
+    
     boids.update();
+    
+    //--- lights.
+    
+    float* lightsAudio;
+    lightsAudio = new float[ lights.size() ];
+    fftFromFile.getFftPeakData( lightsAudio, lights.size() );
     
     for( int i=0; i<lights.size(); i++ )
     {
@@ -374,7 +410,7 @@ void testApp::update()
         light.pos.rotate( light.rotInc, light.rot );
         
         light.positionLight[ 0 ] = light.pos.x;
-        light.positionLight[ 1 ] = light.pos.y;
+        light.positionLight[ 1 ] = light.pos.y; 
         light.positionLight[ 2 ] = light.pos.z;
         
         ofxVec3f lightDir;
@@ -383,7 +419,12 @@ void testApp::update()
         light.directionLight[ 0 ] = lightDir.x;
         light.directionLight[ 1 ] = lightDir.y;
         light.directionLight[ 2 ] = lightDir.z;
+        
+        light.audio = lightsAudio[ i ];
+        light.scale = ofClamp( light.audio, 0.5, 1.0 );
     }
+    
+    delete[] lightsAudio;
     
     for( int i=0; i<rays.size(); i++ )
     {
@@ -470,10 +511,8 @@ void testApp::update()
             ofxVec3f& ray   = *( edgeRays[ j ] );
             ray.set( 0, 0, 0 );
             
-            if( currentSettings->bRotate )
-            {
-                point.rotate( 0.5, ofxVec3f( 0, 1, 0 ) );
-            }
+            float rot = currentSettings->rotation;
+            point.rotate( rot, ofxVec3f( 0, 1, 0 ) );
             
             float& color = *( colors[ j ] );
             color = 0;
@@ -484,9 +523,12 @@ void testApp::update()
                 
                 float d = light.pos.distance( point );
                 
-                if( d <= light.reach )
+                float re = light.reach;
+                re *= light.scale;
+                
+                if( d <= re )
                 {
-                    float p = 1 - d / light.reach;
+                    float p = 1 - d / re;
                     float s = cos( p * PI + PI ) * 0.5 + 0.5;
                     s *= s;
                     
@@ -564,7 +606,7 @@ void testApp::draw()
     drawTriangles();
 
     for( int i=0; i<lights.size(); i++ )
-        drawRays( lights[ i ].pos );
+        drawLights( lights[ i ] );
     
     drawRayEdges();
     drawBoids();
@@ -608,6 +650,7 @@ void testApp :: drawTriangles ()
     float* ver = new float[ 3 * 3 ];
     float* nor = new float[ 3 * 3 ];
     float* col = new float[ 4 * 3 ];
+    float* lnc = new float[ 4 * 3 ];
     
 	for( int i=0; i<triangles.size(); i++ )
 	{
@@ -643,25 +686,39 @@ void testApp :: drawTriangles ()
         
         //--- color.
         
-        float r, g, b, a;
+        float r, g, b, a, a1, a2;
         r = 1;
         g = 1;
         b = 1;
-        a = 1;
+        a1 = currentSettings->triangleColorFillOutsideAlpha;
+        a2 = currentSettings->triangleColorFillInsideAlpha;
+        a  = ( t.facingCamera ) ? a1 : a2;
         
-        col[ 0 * 4 + 0 ] = t.c1;
-        col[ 0 * 4 + 1 ] = t.c1;
-        col[ 0 * 4 + 2 ] = t.c1;
+        float c = 1 - t.audio * soundScale;
+        c *= currentSettings->triangleColorFillOutside;
+        c = ofClamp( c, 0, 1 );
+        
+        glColor4f( c, c, c, 1 );
+        
+        float p = currentSettings->triangleColorFillInsideMix;
+        
+        float c1 = c * p + t.c1 * ( 1 - p );
+        float c2 = c * p + t.c2 * ( 1 - p );
+        float c3 = c * p + t.c3 * ( 1 - p );
+        
+        col[ 0 * 4 + 0 ] = c1;
+        col[ 0 * 4 + 1 ] = c1;
+        col[ 0 * 4 + 2 ] = c1;
         col[ 0 * 4 + 3 ] = a;
         
-        col[ 1 * 4 + 0 ] = t.c2;
-        col[ 1 * 4 + 1 ] = t.c2;
-        col[ 1 * 4 + 2 ] = t.c2;
+        col[ 1 * 4 + 0 ] = c2;
+        col[ 1 * 4 + 1 ] = c2;
+        col[ 1 * 4 + 2 ] = c2;
         col[ 1 * 4 + 3 ] = a;
         
-        col[ 2 * 4 + 0 ] = t.c3;
-        col[ 2 * 4 + 1 ] = t.c3;
-        col[ 2 * 4 + 2 ] = t.c3;
+        col[ 2 * 4 + 0 ] = c3;
+        col[ 2 * 4 + 1 ] = c3;
+        col[ 2 * 4 + 2 ] = c3;
         col[ 2 * 4 + 3 ] = a;
         
         glEnableClientState( GL_VERTEX_ARRAY );		
@@ -670,63 +727,41 @@ void testApp :: drawTriangles ()
         glEnableClientState( GL_NORMAL_ARRAY );		
         glNormalPointer( GL_FLOAT, 0, &nor[ 0 ] );
         
-        if( currentSettings->bLights )
-        {
-            if( t.facingCamera )
-            {
-                glEnableClientState( GL_COLOR_ARRAY );
-                glColorPointer( 4, GL_FLOAT, 0, &col[ 0 ] );
-            }
-            else
-            {
-                float c = currentSettings->triangleColorFill;
-                glColor4f( c, c, c, 1 );
-            }
-        }
-        else
-        {
-            float c = 1 - t.audio * soundScale;
-            c = ofClamp( c, 0, 1 );
-            glColor4f( c, c, c, 1 );
-        }
+        glEnableClientState( GL_COLOR_ARRAY );
+        glColorPointer( 4, GL_FLOAT, 0, &col[ 0 ] );
         
         glDrawArrays( GL_TRIANGLES, 0, 3 );
         
-        if( currentSettings->bLights )
+        //--- lines.
         {
-            if( !t.facingCamera )
+            float p  = currentSettings->triangleColorLineMix;
+            float c  = 0;
+            float c1 = currentSettings->triangleColorLine;
+            float c2 = 0;
+            
+            for( int j=0; j<3; j++ )
             {
-                int m = 3 * 4;
-                for( int j=0; j<m; j++ )
-                {
-                    float& c = col[ j ];
-                    
-                    c += 0.1;
-                    c = MIN( c, 1 );
-                }
+                c2 = col[ j ];
+                c2 += 0.1;
                 
-                glEnableClientState( GL_COLOR_ARRAY );
-                glColorPointer( 4, GL_FLOAT, 0, &col[ 0 ] );
+                c = c2 * p + c1 * ( 1 - p );
+                c = ofClamp( c, 0, 1 );
+                
+                col[ j * 4 + 0 ] = c;
+                col[ j * 4 + 1 ] = c;
+                col[ j * 4 + 2 ] = c;
+                col[ j * 4 + 3 ] = 1;
             }
-            
-            glLineWidth( 1.0 );
-            glEnable( GL_POLYGON_OFFSET_FILL );
-            glPolygonOffset( 1.0, 1.0 );
-            glDrawArrays( GL_LINE_LOOP, 0, 3 );
-            glDisable( GL_POLYGON_OFFSET_FILL );
-            glLineWidth( 1.0 );
         }
-        else
-        {
-            glColor4f( 0.0, 0.0, 0.0, 1.0 );
-            
-            glLineWidth( 2.0 );
-            glEnable( GL_POLYGON_OFFSET_FILL );
-            glPolygonOffset( 1.0, 1.0 );
-            glDrawArrays( GL_LINE_LOOP, 0, 3 );
-            glDisable( GL_POLYGON_OFFSET_FILL );
-            glLineWidth( 1.0 );
-        }
+
+        glColorPointer( 4, GL_FLOAT, 0, &col[ 0 ] );
+        
+        glLineWidth( 2.0 );
+        glEnable( GL_POLYGON_OFFSET_FILL );
+        glPolygonOffset( 1.0, 1.0 );
+        glDrawArrays( GL_LINE_LOOP, 0, 3 );
+        glDisable( GL_POLYGON_OFFSET_FILL );
+        glLineWidth( 1.0 );
         
         glDisableClientState( GL_VERTEX_ARRAY );
         glDisableClientState( GL_NORMAL_ARRAY );
@@ -738,15 +773,16 @@ void testApp :: drawTriangles ()
     delete[] col;
 }
 
-void testApp :: drawRays ( const ofPoint& p )
+void testApp :: drawLights ( PointLight& light )
 {
     if( !currentSettings->bDrawLights )
         return;
     
+    ofPoint& p = light.pos;
+    
     glDepthMask( GL_FALSE );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE );
-    glColor4f( 1, 1, 1, 1 );
-	
+    
 	GLfloat plane[] = 
 	{
 		-0.5, 0.0, 0.0,
@@ -786,7 +822,8 @@ void testApp :: drawRays ( const ofPoint& p )
     glEnableClientState( GL_VERTEX_ARRAY );
     glEnableClientState( GL_TEXTURE_COORD_ARRAY );
     
-    glColor4f( 1.0, 1.0, 1.0, 0.2 );
+    float c = currentSettings->lightsAlpha * 0.3;
+    glColor4f( 1.0, 1.0, 1.0, c );
     
     //---
     
@@ -815,7 +852,7 @@ void testApp :: drawRays ( const ofPoint& p )
             0,    0,    0,    1
         };
         
-        float s = ray.scale;
+        float s = ray.scale * light.audio * 2 + 0.1;
         
 		glPushMatrix();
         glTranslatef( p.x, p.y, p.z );
@@ -1014,6 +1051,17 @@ void testApp::keyPressed(int key)
 	if( key == '[' ) gui.prevPage();
 	if( key == ']' ) gui.nextPage();
     
+    if( key == ',' )
+    {
+        if( --settingsIndexGui < 0 ) 
+            settingsIndexGui = settings.size() - 1;
+    }
+    if( key == '.' )
+    {
+        if( ++settingsIndexGui > settings.size() - 1 )
+            settingsIndexGui = 0;
+    }
+    
     if( key == 'd' )
     {
         bDebug = !bDebug;
@@ -1029,9 +1077,6 @@ void testApp::keyPressed(int key)
         bPause = !bPause;
         sound.setPaused( bPause );
     }
-    
-    if( key == 'l' )
-        currentSettings->bLights = !currentSettings->bLights;
     
     if( key == 'a' )
     {
