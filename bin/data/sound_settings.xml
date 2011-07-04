@@ -1,7 +1,7 @@
 <controls>
     <SliderFloat_soundPosition>
         <name>soundPosition</name>
-        <value>0.349609</value>
+        <value>0.250000</value>
     </SliderFloat_soundPosition>
     <SliderFloat_soundThreshold>
         <name>soundThreshold</name>

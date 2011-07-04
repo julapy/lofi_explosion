@@ -1,13 +1,26 @@
 <controls>
     <SliderInt_settingsIndex>
         <name>settingsIndex</name>
-        <value>0</value>
+        <value>4</value>
     </SliderInt_settingsIndex>
     <SliderFloat_settings0.position>
         <name>settings0.position</name>
         <value>0.000000</value>
-        <name>settings0.position</name>
-        <value>0.000000</value>
     </SliderFloat_settings0.position>
-    <SliderFloat_settings0.position></SliderFloat_settings0.position>
+    <SliderFloat_settings1.position>
+        <name>settings1.position</name>
+        <value>1.000000</value>
+    </SliderFloat_settings1.position>
+    <SliderFloat_settings2.position>
+        <name>settings2.position</name>
+        <value>1.000000</value>
+    </SliderFloat_settings2.position>
+    <SliderFloat_settings3.position>
+        <name>settings3.position</name>
+        <value>1.000000</value>
+    </SliderFloat_settings3.position>
+    <SliderFloat_settings4.position>
+        <name>settings4.position</name>
+        <value>1.000000</value>
+    </SliderFloat_settings4.position>
 </controls>
