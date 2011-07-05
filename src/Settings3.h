@@ -32,12 +32,54 @@ public:
         rotationTarget = 0.5;
     }
     
+    void reset ()
+    {
+        rotationGlitch = 0;
+        rotationGlitchTarget = 0;
+        rotationGlitchOriginal = 0;        
+        rotationGlitchOn = false;
+        rotationGlitchOff = false;
+    }
+    
     void update ( float p = -1 )
     {
-        Settings :: update( p );
+//        Settings :: update( p );
         
         rayAlpha = position;
         rayScale = position * 2;
+        
+        if( rotationGlitchOff )
+        {
+            rotation = rotationGlitchOriginal;
+            rotationGlitchOff = false;
+        }
+        
+        if( rotationGlitchTarget < 0 )
+        {
+            rotationGlitchOriginal = rotation;
+            rotation += rotationGlitchTarget * 4;
+            rotationGlitchTarget = 0;
+            rotationGlitchOn = true;
+            return;
+        }
+        
+        if( rotationGlitchTarget > 0 )
+        {
+            rotation += rotationGlitchTarget * 4;
+            rotationGlitchTarget = 0;
+            rotationGlitchOn = false;
+            rotationGlitchOff = true;
+            return;
+        }
+        
+        if( rotationGlitchOn )
+        {
+            rotation = 0;
+        }
+        else
+        {
+            rotation += ( rotationTarget - rotation ) * rotationEase;
+        }
     }
     
 };

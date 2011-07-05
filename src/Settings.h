@@ -26,6 +26,12 @@ public:
         rotationAudio = 0;
         rotationEase = 0.1;
         
+        rotationGlitch = 0;
+        rotationGlitchTarget = 0;
+        rotationGlitchOriginal = 0;        
+        rotationGlitchOn = false;
+        rotationGlitchOff = false;
+        
         backgroundColor                 = 1.0;
         triangleColorFillOutside        = 1.0;
         triangleColorFillOutsideAlpha   = 1.0;
@@ -33,6 +39,7 @@ public:
         triangleColorFillInsideAlpha    = 1.0;
         triangleColorLine               = 0.0;
         triangleColorLineMix            = 0.0;
+        triangleColorLineAlpha          = 1.0;
         triangleRadiusToCenter          = 1.0;
         triangleRadiusToCenterTarget    = 0.0;
         
@@ -47,6 +54,10 @@ public:
         
         boidAlpha = 0.0;
         boidAudioWeight = 0.0;
+        
+        enableTriangleAlphaBlending = false;
+        
+        audioAlpha = 1.0;
     }
     
     bool bDrawTriangles;
@@ -59,6 +70,12 @@ public:
     float rotationTarget;
     float rotationEase;
     
+    float rotationGlitch;
+    float rotationGlitchTarget;
+    float rotationGlitchOriginal;
+    bool rotationGlitchOn;
+    bool rotationGlitchOff;
+    
     float position;
     float positionStart;
     float positionEnd;
@@ -70,6 +87,7 @@ public:
     float triangleColorFillInsideAlpha;
     float triangleColorLine;
     float triangleColorLineMix;
+    float triangleColorLineAlpha;
     float triangleRadiusToCenter;
     float triangleRadiusToCenterTarget;
     
@@ -81,6 +99,10 @@ public:
     
     float lightsAlpha;
     
+    bool enableTriangleAlphaBlending;
+    
+    float audioAlpha;
+    
     void copySettings ( Settings& settings )
     {
         //
@@ -90,6 +112,11 @@ public:
     {
         this->positionStart = positionStart;
         this->positionEnd   = positionEnd;
+    }
+    
+    void reset ()
+    {
+        //
     }
     
     void update ( float p = -1 )

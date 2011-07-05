@@ -28,9 +28,21 @@ public:
         rotationTarget = 0;
     }
     
+    void reset ()
+    {
+        //
+    }
+    
     void update ( float p = -1 )
     {
         Settings :: update( p );
+        
+        triangleRadiusToCenterTarget *= 0.92;
+        triangleRadiusToCenter += ( ( 1.0 + triangleRadiusToCenterTarget ) - triangleRadiusToCenter ) * 0.5;
+        
+        rotationTarget = 0.5;
+        rotationTarget *= position;
+        rotation += ( rotationTarget - rotation ) * rotationEase;
     }
     
 };

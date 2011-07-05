@@ -1,8 +1,8 @@
 //
-//  Settings2.h
+//  Settings6.h
 //  emptyExample
 //
-//  Created by lukasz karluk on 4/07/11.
+//  Created by lukasz karluk on 6/07/11.
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
@@ -10,22 +10,27 @@
 
 #include "Settings.h"
 
-class Settings2 : public Settings
+class Settings6 : public Settings
 {
 public:
     
-    Settings2() : Settings()
+    Settings6() : Settings()
     {
         backgroundColor = 0.0;
         
-        bDrawTriangles = true;
+        bDrawTriangles = false;
         bDrawLights = true;
-        bDrawBoids = false;
+        bDrawBoids = true;
         bDrawRayEdges = false;
         
-        lightsAlpha = 0;
+        lightsAlpha = 1;
+        
+        boidAudioWeight = 1.0;
         
         rotationTarget = 0.5;
+        
+        boidAlpha = 1;
+        boidAudioWeight = 0;
     }
     
     void reset ()
@@ -37,11 +42,8 @@ public:
     {
         Settings :: update( p );
         
-        lightsAlpha = position;
-        triangleColorFillOutside = 1 - position;
-        triangleColorFillInsideMix = 1 - position;
-        triangleColorLineMix = position;
-        triangleColorLine = position * 0.2;
+        boidAlpha = ( 1 - position ) * audioAlpha;
+        lightsAlpha = ( 1 - position ) * audioAlpha;
     }
     
 };

@@ -24,14 +24,19 @@ public:
         rotationTarget = 0.5;
     }
     
+    void reset ()
+    {
+        //
+    }
+    
     void update ( float p = -1 )
     {
         Settings :: update( p );
         
         backgroundColor = 1 - position;
         
-        triangleRadiusToCenterTarget *= 0.92;
-        triangleRadiusToCenter += ( ( 1.0 + triangleRadiusToCenterTarget ) - triangleRadiusToCenter ) * 0.5;
+//        triangleRadiusToCenterTarget *= 0.92;
+//        triangleRadiusToCenter += ( ( 1.0 + triangleRadiusToCenterTarget ) - triangleRadiusToCenter ) * 0.5;
         
         float rotationAudioScaled = rotationAudio * 4;
         if( rotationTarget < rotationAudioScaled )

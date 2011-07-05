@@ -1,5 +1,5 @@
 //
-//  Settings4.h
+//  Settings5.h
 //  emptyExample
 //
 //  Created by lukasz karluk on 5/07/11.
@@ -10,11 +10,11 @@
 
 #include "Settings.h"
 
-class Settings4 : public Settings
+class Settings5 : public Settings
 {
 public:
     
-    Settings4() : Settings()
+    Settings5() : Settings()
     {
         backgroundColor = 0.0;
         
@@ -35,6 +35,14 @@ public:
         boidAudioWeight = 1.0;
         
         rotationTarget = 0.5;
+        
+        enableTriangleAlphaBlending = true;
+        
+        triangleColorFillInsideAlpha = 0;
+        triangleColorFillOutsideAlpha = 0;
+        
+        boidAlpha = 1;
+        boidAudioWeight = 0;
     }
     
     void reset ()
@@ -46,11 +54,9 @@ public:
     {
         Settings :: update( p );
         
-        triangleColorFillInsideAlpha = 1 - position;
-        triangleColorFillOutsideAlpha = 1 - position;
-        
-        boidAlpha = position;
-        boidAudioWeight = 1 - position;
+        rayAlpha = 1 - position;
+        rayScale = ( 1 - position ) * 2;
+        triangleColorLineAlpha = ( 1 - position );
     }
     
 };

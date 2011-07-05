@@ -228,6 +228,8 @@
 		15E31E1C13C066C300332BC0 /* Settings1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings1.h; sourceTree = "<group>"; };
 		15E31E1E13C0687B00332BC0 /* Settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings.h; sourceTree = "<group>"; };
 		15E31E1F13C0979A00332BC0 /* Settings3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings3.h; sourceTree = "<group>"; };
+		15ED4DC813C34C2700702C53 /* Settings5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings5.h; sourceTree = "<group>"; };
+		15ED4DC913C351CB00702C53 /* Settings6.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings6.h; sourceTree = "<group>"; };
 		E45BE0390E8CC647009D7055 /* FreeImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FreeImage.h; path = ../../../libs/freeimage/include/FreeImage.h; sourceTree = SOURCE_ROOT; };
 		E45BE03F0E8CC650009D7055 /* fmod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fmod.h; path = ../../../libs/fmodex/include/fmod.h; sourceTree = SOURCE_ROOT; };
 		E45BE0400E8CC650009D7055 /* fmod.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = fmod.hpp; path = ../../../libs/fmodex/include/fmod.hpp; sourceTree = SOURCE_ROOT; };
@@ -617,6 +619,8 @@
 				15E2CDD113C1ED88005B01A0 /* Settings2.h */,
 				15E31E1F13C0979A00332BC0 /* Settings3.h */,
 				15E2CDD213C21D65005B01A0 /* Settings4.h */,
+				15ED4DC813C34C2700702C53 /* Settings5.h */,
+				15ED4DC913C351CB00702C53 /* Settings6.h */,
 			);
 			name = settings;
 			sourceTree = "<group>";

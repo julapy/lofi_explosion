@@ -9,6 +9,7 @@
 #include "ofxFBOTexture.h"
 #include "ofxOscReceiver.h"
 #include "ofxTrigger.h"
+#include "AudioAbstract.h"
 #include "AudioFileSpectrum.h"
 #include "AudioLiveSpectrum.h"
 
@@ -18,8 +19,11 @@
 #include "Settings2.h"
 #include "Settings3.h"
 #include "Settings4.h"
+#include "Settings5.h"
+#include "Settings6.h"
 
 #define OSC_MESSAGES_TOTAL  10
+//#define USE_LIVE_SOUND
 
 class Triangle
 {
@@ -122,6 +126,8 @@ public:
     ofxFBOTexture       fbo;
     float               fboScale;
     ofRectangle         fboRect;
+
+    ofRectangle         screenRect;
     
     ofxVec3f            center;
     ofxVec3f            camera;
@@ -134,6 +140,7 @@ public:
     
     bool                bDebug;
     bool                bPause;
+    bool                bFullScreen;
     
     //---
     
@@ -148,7 +155,7 @@ public:
     int                 timeNudge;
     
     ofSoundPlayer       sound;
-    AudioFileSpectrum   fftFromFile;
+    AudioAbstract*      fft;
     int                 soundTimeMillis;
     int                 soundTimeNudgeMillis;
     float               soundPosition;

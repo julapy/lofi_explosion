@@ -10,10 +10,13 @@ void testApp::setup()
     ofSetVerticalSync( true );
     ofBackground( 0, 0, 0 );
 
+    screenRect.width  = 1024;
+    screenRect.height = 768;
+    
     radius = 200;
     rotationY = 0;
-    center.x = ofGetWidth()  * 0.5;
-    center.y = ofGetHeight() * 0.5;
+    center.x = screenRect.width * 0.5;
+    center.y = screenRect.height * 0.5;
     
     rayImage.loadImage( "ray.png" );
     rayStripImage.loadImage( "ray_strip.png" );
@@ -23,12 +26,13 @@ void testApp::setup()
     boids.setup();
     
     fboScale        = 1;
-    fboRect.width   = ofGetWidth()  * fboScale;
-    fboRect.height  = ofGetHeight() * fboScale;
+    fboRect.width   = screenRect.width  * fboScale;
+    fboRect.height  = screenRect.height * fboScale;
     fbo.allocate( fboRect.width, fboRect.height, GL_RGB, 1 );
     
-    bDebug  = true;
-    bPause  = false;
+    bDebug      = true;
+    bPause      = false;
+    bFullScreen = false;
     
     int t = 300;
 	for( int i=0; i<t; i++ )
@@ -201,6 +205,8 @@ void testApp::setup()
     settings.push_back( Settings2() );
     settings.push_back( Settings3() );
     settings.push_back( Settings4() );
+    settings.push_back( Settings5() );
+    settings.push_back( Settings6() );
     settingsIndex = settings.size() - 1;
    
     currentSettings = &settings[ settingsIndex ];
@@ -251,21 +257,22 @@ void testApp::setup()
     
     oscMessageIndex = 0;
     
-    if( ( bUseRecordedSound = true ) )
+    if( ( bUseRecordedSound = false ) )
     {
         int soundTimeMin = 16;
         int soundTimeSec = 0;
         soundTimeMillis = ( soundTimeMin * 60 + soundTimeSec ) * 1000;
         
-        soundPosition = 0.25;
+        soundPosition = 0.0;
         soundPositionGui = soundPosition;
         
         sound.loadSound( "lofi_pretty_ugly.mp3" );
         sound.play();
         sound.setPosition( soundPosition );
         
-        fftFromFile.init( &sound );
-        fftFromFile.setMirrorData( true );
+        fft = new AudioFileSpectrum();
+        ( (AudioFileSpectrum*)fft )->init( &sound );
+        fft->setMirrorData( true );
         
         trigger.load( "triggers_pt1.xml" );
         trigger.setStartTimeMillis( -soundTimeNudgeMillis );
@@ -274,6 +281,10 @@ void testApp::setup()
     else
     {
         oscReceiver.setup( 12345 );
+        
+        fft = new AudioLiveSpectrum();
+        ( (AudioLiveSpectrum*)fft )->init();
+        fft->setMirrorData( true );
     }
 }
 
@@ -299,6 +310,10 @@ void testApp::update()
         ( (Settings3*)currentSettings )->update( bUpdateToSound ? position : -1 );
     else if( settingsIndex == 4 )
         ( (Settings4*)currentSettings )->update( bUpdateToSound ? position : -1 );
+    else if( settingsIndex == 5 )
+        ( (Settings5*)currentSettings )->update( bUpdateToSound ? position : -1 );
+    else if( settingsIndex == 6 )
+        ( (Settings6*)currentSettings )->update( bUpdateToSound ? position : -1 );
     
     //--- sound.
     
@@ -317,6 +332,20 @@ void testApp::update()
         settingsIndex = settingsIndexGui;
         
         currentSettings = &settings[ settingsIndex ];
+        if( settingsIndex == 0 )
+            ( (Settings0*)currentSettings )->reset();
+        else if( settingsIndex == 1 )
+            ( (Settings1*)currentSettings )->reset();
+        else if( settingsIndex == 2 )
+            ( (Settings2*)currentSettings )->reset();
+        else if( settingsIndex == 3 )
+            ( (Settings3*)currentSettings )->reset();
+        else if( settingsIndex == 4 )
+            ( (Settings4*)currentSettings )->reset();
+        else if( settingsIndex == 5 )
+            ( (Settings5*)currentSettings )->reset();
+        else if( settingsIndex == 6 )
+            ( (Settings6*)currentSettings )->reset();
     }
     
     //---
@@ -371,23 +400,24 @@ void testApp::update()
         }
     }
     
-    fftFromFile.setThreshold( soundThreshold );
-	fftFromFile.setPeakDecay( soundPeakDecay );
-    fftFromFile.setMaxDecay( soundMaxDecay );
-    fftFromFile.update();
-//    fftFromFile.getFftData( triangleAudio, triangles.size() );
-    fftFromFile.getFftPeakData( triangleAudio, triangles.size() );
+    fft->setThreshold( soundThreshold );
+	fft->setPeakDecay( soundPeakDecay );
+    fft->setMaxDecay( soundMaxDecay );
+    fft->update();
+//    fft->getFftData( triangleAudio, triangles.size() );
+    fft->getFftPeakData( triangleAudio, triangles.size() );
     
     //---
     
-    currentSettings->rotationAudio = fftFromFile.getAveragePeak();
+    currentSettings->rotationAudio = fft->getAveragePeak();
+    currentSettings->audioAlpha = fft->getAveragePeak();
         
     //---
     
     int boidsTotal = boids.boids.size();
     float* boidsAudio;
     boidsAudio = new float[ boidsTotal ];
-    fftFromFile.getFftPeakData( boidsAudio, boidsTotal );
+    fft->getFftPeakData( boidsAudio, boidsTotal );
     for( int i=0; i<boidsTotal; i++ )
         boids.boids[ i ]->audio = boidsAudio[ i ];
     delete[] boidsAudio;
@@ -401,7 +431,7 @@ void testApp::update()
     
     float* lightsAudio;
     lightsAudio = new float[ lights.size() ];
-    fftFromFile.getFftPeakData( lightsAudio, lights.size() );
+    fft->getFftPeakData( lightsAudio, lights.size() );
     
     for( int i=0; i<lights.size(); i++ )
     {
@@ -565,6 +595,17 @@ void testApp :: parseOsc ( string msg )
             currentSettings->triangleRadiusToCenterTarget = 0.2;
         }
     }
+    else if( address == "/midi/note/2/2:" )
+    {
+        if( value == "int32:1" )
+        {
+            currentSettings->rotationGlitchTarget = -1;
+        }
+        else if( value == "int32:0" )
+        {
+            currentSettings->rotationGlitchTarget = 1;
+        }
+    }
 }
 
 ///////////////////////////////////////////
@@ -618,7 +659,7 @@ void testApp::draw()
     ofSetColor( 255, 255, 255 );
     
     fbo.end();
-    fbo.draw( 0, 0, ofGetWidth(), ofGetHeight() );
+    fbo.draw( bFullScreen ? 1440 : 0, 0, screenRect.width, screenRect.height );
     
     if( !bDebug )
         return;
@@ -628,15 +669,15 @@ void testApp::draw()
     ofSetColor( 255, 255, 255 );
 	for( int i=0; i<OSC_MESSAGES_TOTAL; i++ )
 	{
-		ofDrawBitmapString( oscMessages[ i ], 300, ofGetHeight() - OSC_MESSAGES_TOTAL * 15 + 15 * i );
+		ofDrawBitmapString( oscMessages[ i ], 300, screenRect.height - OSC_MESSAGES_TOTAL * 15 + 15 * i );
 	}
     
     {
         int w = 256;
         int h = 128;
-        int x = ofGetWidth()  - w;
-        int y = ofGetHeight() - h;
-        fftFromFile.draw( x, y, w, h );
+        int x = screenRect.width - w;
+        int y = screenRect.height - h;
+        fft->draw( x, y, w, h );
     }
 }
 
@@ -645,12 +686,17 @@ void testApp :: drawTriangles ()
     if( !currentSettings->bDrawTriangles )
         return;
     
+    if( currentSettings->enableTriangleAlphaBlending )
+    {
+        glDepthMask( GL_FALSE );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+    }
+    
     glColor4f( 1, 1, 1, 1 );
     
     float* ver = new float[ 3 * 3 ];
     float* nor = new float[ 3 * 3 ];
     float* col = new float[ 4 * 3 ];
-    float* lnc = new float[ 4 * 3 ];
     
 	for( int i=0; i<triangles.size(); i++ )
 	{
@@ -721,10 +767,10 @@ void testApp :: drawTriangles ()
         col[ 2 * 4 + 2 ] = c3;
         col[ 2 * 4 + 3 ] = a;
         
-        glEnableClientState( GL_VERTEX_ARRAY );		
+        glEnableClientState( GL_VERTEX_ARRAY );
         glVertexPointer( 3, GL_FLOAT, 0, &ver[ 0 ] );
         
-        glEnableClientState( GL_NORMAL_ARRAY );		
+        glEnableClientState( GL_NORMAL_ARRAY );
         glNormalPointer( GL_FLOAT, 0, &nor[ 0 ] );
         
         glEnableClientState( GL_COLOR_ARRAY );
@@ -738,6 +784,7 @@ void testApp :: drawTriangles ()
             float c  = 0;
             float c1 = currentSettings->triangleColorLine;
             float c2 = 0;
+            float a  = currentSettings->triangleColorLineAlpha;
             
             for( int j=0; j<3; j++ )
             {
@@ -750,7 +797,7 @@ void testApp :: drawTriangles ()
                 col[ j * 4 + 0 ] = c;
                 col[ j * 4 + 1 ] = c;
                 col[ j * 4 + 2 ] = c;
-                col[ j * 4 + 3 ] = 1;
+                col[ j * 4 + 3 ] = a;
             }
         }
 
@@ -771,6 +818,9 @@ void testApp :: drawTriangles ()
     delete[] ver;
     delete[] nor;
     delete[] col;
+    
+    glBlendFunc( GL_ONE, GL_ZERO );
+    glDepthMask( GL_TRUE );
 }
 
 void testApp :: drawLights ( PointLight& light )
@@ -1053,13 +1103,11 @@ void testApp::keyPressed(int key)
     
     if( key == ',' )
     {
-        if( --settingsIndexGui < 0 ) 
-            settingsIndexGui = settings.size() - 1;
+        settingsIndexGui = MAX( settingsIndexGui - 1, 0 );
     }
     if( key == '.' )
     {
-        if( ++settingsIndexGui > settings.size() - 1 )
-            settingsIndexGui = 0;
+        settingsIndexGui = MIN( settingsIndexGui + 1, settings.size() - 1 );
     }
     
     if( key == 'd' )
@@ -1076,6 +1124,12 @@ void testApp::keyPressed(int key)
     {
         bPause = !bPause;
         sound.setPaused( bPause );
+    }
+    
+    if( key == 'f' )
+    {
+        bFullScreen = !bFullScreen;
+        ofToggleFullscreen();
     }
     
     if( key == 'a' )
